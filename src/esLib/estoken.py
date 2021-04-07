@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import time
-from utils import refreshToken, defaultSession
+from esLib.utils import refreshToken, defaultSession
 import json
 
 class tokenManager():
@@ -29,8 +29,8 @@ class tokenManager():
         #when the token will expire (time.time())
         #set all values beforehand so we can use getdata() lol
         #default is 0 so get_token refreshs token on first run
-	
-	self.refresh_token_proxy=kwargs.get("refresh_token_proxy", False)
+        
+        self.refresh_token_proxy=kwargs.get("refresh_token_proxy", False)
     
     def set_refresh_token(self, refresh_token, expires=False):
         self.refresh_token=refresh_token
