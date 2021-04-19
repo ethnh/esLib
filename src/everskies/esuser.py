@@ -45,18 +45,17 @@ class User():
         if self.user.ok:
             self.user=json.loads(self.user.text)
         else:
-
             self.user=None
             raise Exception("Failed to get user data!")
 
     def __repr__(self):
         if isinstance(self.user, dict):
-            username=str(self.user.get("alias", "Unknown")
+            username=str(self.user.get("alias", "Unknown"))
         else:
             username="Unknown"
         return str(f"User {username}")
 
-    def getData(self, silent=False):
+    def getData(self, silent=True):
         if not silent:
             print("Ok! Getting data.")
         return {
@@ -192,8 +191,8 @@ class User():
         kwargs:
             - offeredItemSets - list of ints
             - offeredItemVariations - list of ints
-            - offerPrimary - int (stars I believe)
-            - offerSecondary - int (stardust?)
+            - offerPrimary - int (stardust)
+            - offerSecondary - int (stars)
             - requestItemSets - list of ints
             - requestItemVariations - list of ints
             - requestPrimary - int
@@ -223,8 +222,19 @@ class User():
         self.readyAuth()
         r=self.rs.post(f"https://api.everskies.com/user/message/trade/{tradeid}/cancel", data="")
         if r.ok:
-            print("Cancelled trade id {tradeid}")
+            print(f"Cancelled trade id {tradeid}")
             return r
         else:
-            print("Failed to cancel trade id {tradeid}. Status code: {r.status_code}")
+            print(f"Failed to cancel trade id {tradeid}. Status code: {r.status_code}")
             return r
+    
+    def acceptTrade(self, tradeid):
+        self.readyAuth()
+        r=self.rs.post(f"https://api.everskies.com/user/message/trade/{tradeid}/accept", data="")
+        if r.ok:
+            print(f"Accepted trade id {tradeid}")
+            return r
+        else:
+            print(f"Failed to accept trade id {tradeid}. Status code: {r.status_code}")
+            return r
+

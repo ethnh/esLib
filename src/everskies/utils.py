@@ -59,7 +59,7 @@ def refreshToken(session, refresh_token, retries=10):
                 # Get new access token
                 print("Refreshing access token")
                 r = session.post("https://api.everskies.com/user/refresh-token",
-                                 json={"token": refresh_token})
+                                 json={"token": refresh_token}, timeout=5)
                 if r.ok:
                     break
             except ConnectionError as err:
