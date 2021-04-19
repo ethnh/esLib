@@ -13,5 +13,5 @@ del isfile
 del join
 
 #Get this into the everskies module as it is the primary function of esLib for now
-User=everskies.esuser.User
+User=esuser.User
 

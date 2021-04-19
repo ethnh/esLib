@@ -50,7 +50,11 @@ class User():
             raise Exception("Failed to get user data!")
 
     def __repr__(self):
-        return str(self.getData(silent=True))
+        if isinstance(self.user, dict):
+            username=str(self.user.get("alias", "Unknown")
+        else:
+            username="Unknown"
+        return str(f"User {username}")
 
     def getData(self, silent=False):
         if not silent:
