@@ -1,5 +1,5 @@
-from esLib import estoken
-from esLib import utils
+from everskies import estoken
+from everskies import utils
 import requests
 import json
 """TODO:

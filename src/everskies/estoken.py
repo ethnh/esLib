@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import time
-from esLib.utils import refreshToken, defaultSession
+from everskies.utils import refreshToken, defaultSession
 import json
 
 class tokenManager():
