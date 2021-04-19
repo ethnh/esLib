@@ -50,7 +50,7 @@ class User():
             raise Exception("Failed to get user data!")
 
     def __repr__(self):
-        return self.getData(silent=True)
+        return str(self.getData(silent=True))
 
     def getData(self, silent=False):
         if not silent:

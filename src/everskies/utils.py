@@ -32,6 +32,7 @@ software_types = [SoftwareType.WEB_BROWSER.value]
 hardware_types = [HardwareType.MOBILE.value, HardwareType.COMPUTER.value]
 operating_systems = [OperatingSystem.WINDOWS.value, OperatingSystem.LINUX.value, OperatingSystem.MAC.value]
 user_agent_rotator = UserAgent(software_names=software_names, operating_systems=operating_systems)
+import requests
 
 def randomagent():
     return(user_agent_rotator.get_random_user_agent())
