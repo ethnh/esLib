@@ -33,6 +33,7 @@ hardware_types = [HardwareType.MOBILE.value, HardwareType.COMPUTER.value]
 operating_systems = [OperatingSystem.WINDOWS.value, OperatingSystem.LINUX.value, OperatingSystem.MAC.value]
 user_agent_rotator = UserAgent(software_names=software_names, operating_systems=operating_systems)
 import requests
+import jwt
 
 def randomagent():
     return(user_agent_rotator.get_random_user_agent())
@@ -76,3 +77,20 @@ def refreshToken(session, refresh_token, retries=10):
         print("no refresh token supplied or invalid refresh token supplied")
         raise Exception("Refresh_Fail")
 
+def getUid(token):
+    tdata = jwt.get_unverified_header(token)
+    uid = tdata['user_id']
+    return uid
+
+def isbanned(uid, rs=defaultSession()):
+    params = (
+        ('search', '[{"attribute":"id","comparator":"eq","value":' + str(uid) + '}]'),
+        ('single', '1'),
+        ('withOptions', '1'),
+    )
+    r = rs.get('https://api.everskies.com/users', params=params)
+    try:
+        json.loads(r)['ban_id']
+        return True
+    except:
+        return False

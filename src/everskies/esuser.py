@@ -237,4 +237,13 @@ class User():
         else:
             print(f"Failed to accept trade id {tradeid}. Status code: {r.status_code}")
             return r
+    
+    def getDailyReward(self):
+        """Does not claim daily reward, only GET's the endpoint and returns data as dict"""
+        self.readyAuth()
+        return json.loads(self.rs.get("https://api.everskies.com/user/reward").text)
 
+    def claimDailyReward(self):
+        """POSTs to ES daily reward that it is done! Returns request"""
+        self.readyAuth()
+        return self.rs.post("https://api.everskies.com/user/claim-reward", json={"done":True})
