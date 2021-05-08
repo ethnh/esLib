@@ -12,6 +12,7 @@ from everskies import errors
             but if it's data only a User could get about themselves, 
             it belongs in User
     3. Websocket? Python cryptography ?!?!
+    4. Better logging - Print() Won't work forever!
     """
 class User():
     """
@@ -65,12 +66,12 @@ class User():
                 "tokenManager" : self.tokenManager.get_data(),
                 }
 
-    def setToken(self, refresh_token):
-        self.tokenManager=estoken.tokenManager(
-                                                    refresh_token=refresh_token,
-                                                    refresh_token_expires=kwargs.get("refresh_token_expir$
-                                                    access_token_expires_after=kwargs.get("access_token_e$
-                                                    refresh_token_proxy=kwargs.get("refresh_token_proxy",$
+    def setToken(self, refresh_token, **kwargs):
+         self.tokenManager=estoken.tokenManager(
+                                                    refresh_token=refresh_token, 
+                                                    refresh_token_expires=kwargs.get("refresh_token_expires", None),
+                                                    access_token_expires_after=kwargs.get("access_token_expires_after", 1800),
+                                                    refresh_token_proxy=kwargs.get("refresh_token_proxy", None),
                                                     )
          print("Set refresh token! It is recommended that you refresh the access token through User.tokenManager.do_refresh_token() .")
 
