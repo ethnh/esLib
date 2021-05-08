@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+"""
+! Only static import is esuser.User
+"""
 from os.path import dirname, basename, isfile, join
 import glob
 modules = glob.glob(join(dirname(__file__), "*.py"))

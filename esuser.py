@@ -1,7 +1,10 @@
+#!/usr/bin/env python3
 from everskies import estoken
 from everskies import utils
 import requests
 import json
+from everskies import errors
+
 """TODO:
     1. Update setLayout
     2. Add functionality for more GET's!
@@ -9,7 +12,6 @@ import json
             but if it's data only a User could get about themselves, 
             it belongs in User
     3. Websocket? Python cryptography ?!?!
-
     """
 class User():
     """
@@ -22,16 +24,16 @@ class User():
         if refresh_token:
             self.tokenManager=estoken.tokenManager(
                                                     refresh_token=refresh_token, 
-                                                    refresh_token_expires=kwargs.get("refresh_token_expires", False), 
+                                                    refresh_token_expires=kwargs.get("refresh_token_expires", None),
                                                     access_token_expires_after=kwargs.get("access_token_expires_after", 1800),
-                                                    refresh_token_proxy=kwargs.get("refresh_token_proxy", False),
+                                                    refresh_token_proxy=kwargs.get("refresh_token_proxy", None),
 						    )
         else:
             print("you will need to use User.set_token(refresh_token=\"[...]\")!")
         
         self.user=kwargs.get("user", None)
         
-        self.rs=kwargs.get("rs", utils.defaultSession(proxies=kwargs.get("proxies", False)))
+        self.rs=kwargs.get("rs", utils.defaultSession(proxies=kwargs.get("proxies", None)))
     
     def readyAuth(self):
         self.rs.headers.update({
@@ -46,7 +48,7 @@ class User():
             self.user=json.loads(self.user.text)
         else:
             self.user=None
-            raise Exception("Failed to get user data!")
+            raise errors.GetterError("User Data")
 
     def __repr__(self):
         if isinstance(self.user, dict):
@@ -64,7 +66,13 @@ class User():
                 }
 
     def setToken(self, refresh_token):
-        self.tokenManager=estoken.tokenManager(refresh_token=refresh_token)
+        self.tokenManager=estoken.tokenManager(
+                                                    refresh_token=refresh_token,
+                                                    refresh_token_expires=kwargs.get("refresh_token_expir$
+                                                    access_token_expires_after=kwargs.get("access_token_e$
+                                                    refresh_token_proxy=kwargs.get("refresh_token_proxy",$
+                                                    )
+         print("Set refresh token! It is recommended that you refresh the access token through User.tokenManager.do_refresh_token() .")
 
     def createReply(self, threadid, text, **kwargs):
         self.readyAuth()
@@ -79,7 +87,7 @@ class User():
             print("successfully created post")
             return r
         else:
-            raise Exception("Failed to create reply!")
+            raise errors.CreationError("Reply")
 
     def claimReward(self):
         self.readyAuth()
@@ -114,7 +122,7 @@ class User():
             print("successfully created post")
             return r
         else:
-            raise Exception("Failed to create Post")
+            raise errors.CreationError("Post")
 
     def claimGift(self, code):
         self.readyAuth()
@@ -143,6 +151,11 @@ class User():
         # doesn't support images completely yet- probably an easy fix
 
         def rebuild_data(data):    
+            """Attempts to take profile data from api/user/layout?search=((userid)) and edit it to be apply-able to one's own profile through morphing the data
+            Used in "stealing" anothers profile
+            TODO:
+                Implement method to take images from other's profiles
+            """
             datatemp=data["userProfileElements"]
             for element in datatemp:
                     element["id"]=-26045899
@@ -163,7 +176,9 @@ class User():
         
         #ugly elif chain :(( python match case better release soon
         if mode == "steal":
-            t_layout=kwargs.get("steal_url", False)
+            t_layout=kwargs.get("steal_url", None)
+            #boolean
+
             if t_layout:
                 layout=self.rs.get(t_layout)
             layout=rebuild_data(layout)
@@ -171,11 +186,12 @@ class User():
             self.rs.post("https://api.everskies.com/user/layout/update", data=json.dumps(layout))
 
         elif mode == "create":
-            pass
+            raise NotImplemented
         elif mode == "update":
-            pass
+            raise NotImplemented
         else:
             print("Not a valid mode!")
+            raise NotImplemented
         
     def auctionBid(self, itemid, amount, **kwargs):
         self.readyAuth()
@@ -197,6 +213,7 @@ class User():
             - requestItemVariations - list of ints
             - requestPrimary - int
             - requestSecondary - int
+        Returns a requests.response object
         """
         self.readyAuth()
         trade={
@@ -239,11 +256,13 @@ class User():
             return r
     
     def getDailyReward(self):
-        """Does not claim daily reward, only GET's the endpoint and returns data as dict"""
+        """Does not claim daily reward, only GET's the endpoint and returns data as dict
+        Returns a dict"""
         self.readyAuth()
         return json.loads(self.rs.get("https://api.everskies.com/user/reward").text)
 
     def claimDailyReward(self):
-        """POSTs to ES daily reward that it is done! Returns request"""
+        """POSTs to ES daily reward that it is done! 
+        Returns request object"""
         self.readyAuth()
         return self.rs.post("https://api.everskies.com/user/claim-reward", json={"done":True})
