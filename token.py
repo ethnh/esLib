@@ -44,7 +44,7 @@ class Tokenmanager:
         # set all values beforehand so we can use getdata() lol
         # default is 0 so get_token refreshes token on first run
 
-        self.refresh_token_proxy = kwargs.get("refresh_token_proxy", None)
+        self.refresh_token_proxy = kwargs.get("refresh_token_proxy")
         if self.refresh_token_proxy is None:
             self.refresh_token_proxy = {}
 

@@ -32,17 +32,17 @@ class User:
         if refresh_token:
             self.tokenManager = token.tokenManager(
                 refresh_token=refresh_token,
-                refresh_token_expires=kwargs.get("refresh_token_expires", None),
+                refresh_token_expires=kwargs.get("refresh_token_expires"),
                 access_token_expires_after=kwargs.get("access_token_expires_after",
                                                       1800),
-                refresh_token_proxy=kwargs.get("refresh_token_proxy", None),
+                refresh_token_proxy=kwargs.get("refresh_token_proxy"),
             )
         else:
             log.info("you will need to use User.set_token(refresh_token=\"[...]\")!")
 
-        self.user = kwargs.get("user", None)
+        self.user = kwargs.get("user")
 
-        self.rs = kwargs.get("rs", utils.defaultSession(proxies=kwargs.get("proxies", None)))
+        self.rs = kwargs.get("rs", utils.defaultSession(proxies=kwargs.get("proxies")))
 
     def readyAuth(self):
         self.rs.headers.update({
@@ -76,9 +76,9 @@ class User:
     def setToken(self, refresh_token, **kwargs):
         self.tokenManager = token.tokenManager(
             refresh_token=refresh_token,
-            refresh_token_expires=kwargs.get("refresh_token_expires", None),
+            refresh_token_expires=kwargs.get("refresh_token_expires"),
             access_token_expires_after=kwargs.get("access_token_expires_after", 1800),
-            refresh_token_proxy=kwargs.get("refresh_token_proxy", None),
+            refresh_token_proxy=kwargs.get("refresh_token_proxy"),
         )
         log.info("Set refresh token! It is recommended that you refresh the access token through "
                  "User.tokenManager.do_refresh_token() , as the access token is what controls the currently used "
@@ -88,7 +88,7 @@ class User:
         self.readyAuth()
         data = {
             "content": text,
-            "parent_reply_id": kwargs.get("parent_reply_id", None),
+            "parent_reply_id": kwargs.get("parent_reply_id"),
             "attachments": kwargs.get("attachments", []),
         }
         url = f'https://api.everskies.com/discussion/{threadid}/reply'
@@ -114,13 +114,13 @@ class User:
         # {"title":"hi","tw":null,"tw_reason":null,"tags":"","category_id":8,"club_category_id":null,"content":"lol","event":null,"attachments":[]}
         data = {
             "title": title,
-            "tw": kwargs.get("tw", None),
-            "tw_reason": kwargs.get("tw_reason", None),
+            "tw": kwargs.get("tw"),
+            "tw_reason": kwargs.get("tw_reason"),
             "tags": kwargs.get("tags", ""),
             "category_id": categoryid,
-            "club_category_id": kwargs.get("club_category_id", None),
+            "club_category_id": kwargs.get("club_category_id"),
             "content": text,
-            "event": kwargs.get("event", None),
+            "event": kwargs.get("event"),
             "attachments": kwargs.get("attachments", []),
         }
         # debug:
@@ -185,7 +185,7 @@ class User:
 
         # ugly elif chain :(( python match case better release soon
         if mode == "steal":
-            t_layout = kwargs.get("steal_url", None)
+            t_layout = kwargs.get("steal_url")
             # boolean
 
             if t_layout:
@@ -232,10 +232,10 @@ class User:
             "offeredItemVariationIds": kwargs.get("offeredItemVariations", []),
             "requestedItemSetIds": kwargs.get("requestItemSets", []),
             "requestedItemVariationIds": kwargs.get("requestItemVariations", []),
-            "offer_primary": kwargs.get("offerPrimary", None),
-            "offer_secondary": kwargs.get("offerSecondary", None),
-            "request_primary": kwargs.get("requestPrimary", None),
-            "request_secondary": kwargs.get("requestSecondary", None),
+            "offer_primary": kwargs.get("offerPrimary"),
+            "offer_secondary": kwargs.get("offerSecondary"),
+            "request_primary": kwargs.get("requestPrimary"),
+            "request_secondary": kwargs.get("requestSecondary"),
         }
         r = self.rs.post("https://api.everskies.com/user/message/trade", data=json.dumps(trade))
         if r.ok:
