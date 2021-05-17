@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
-from everskies import utils
-import requests
 import logging
+
+import requests
+from everskies import utils
 
 log = logging.getLogger(__name__)
 

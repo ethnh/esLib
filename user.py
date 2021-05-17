@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
-from everskies import token
-from everskies import utils
-import requests
-
 # unused import - consider removing
 import json
-from everskies import errors
 import logging
+
+import requests
+from everskies import errors, token, utils
 
 log = logging.getLogger(__name__)
 

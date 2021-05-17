@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-import time
-from everskies.utils import refreshToken, randomagent
 import json
-from everskies import errors
 import logging
+import time
+
 import requests
+from everskies import errors
+from everskies.utils import randomagent, refreshToken
 
 log = logging.getLogger(__name__)
 
