@@ -1,2 +1,2 @@
 # ESLib
-Various utilities for botting everskies
+An API wrapper for Everskies written in Python.
