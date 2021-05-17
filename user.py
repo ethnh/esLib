@@ -98,8 +98,7 @@ class User:
         if r.ok:
             log.info("successfully created post")
             return r
-        else:
-            raise errors.CreationError("Reply")
+        raise errors.CreationError("Reply")
 
     def claimReward(self):
         self.readyAuth()
@@ -135,8 +134,7 @@ class User:
         if r.ok:
             log.info("successfully created post")
             return r
-        else:
-            raise errors.CreationError("Post")
+        raise errors.CreationError("Post")
 
     def claimGift(self, code):
         self.readyAuth()
@@ -223,9 +221,8 @@ class User:
         )
         if r.ok:
             return r
-        else:
-            log.error(f"Failed to bid {amount} on {itemid}")
-            return r
+        log.error(f"Failed to bid {amount} on {itemid}")
+        return r
 
     def createTrade(self, userid, **kwargs):
         """
@@ -259,10 +256,9 @@ class User:
             log.info(
                 f"Successfully sent trade request to {userid}, data: {kwargs}")
             return r
-        else:
-            log.error(
-                f"Failed to send trade request to {userid}, data: {kwargs}")
-            return r
+        log.error(
+            f"Failed to send trade request to {userid}, data: {kwargs}")
+        return r
 
     def cancelTrade(self, tradeid):
         self.readyAuth()
@@ -272,11 +268,10 @@ class User:
         if r.ok:
             log.info(f"Cancelled trade id {tradeid}")
             return r
-        else:
-            log.error(
-                f"Failed to cancel trade id {tradeid}. Status code: {r.status_code}"
-            )
-            return r
+        log.error(
+            f"Failed to cancel trade id {tradeid}. Status code: {r.status_code}"
+        )
+        return r
 
     def acceptTrade(self, tradeid):
         self.readyAuth()
@@ -286,11 +281,10 @@ class User:
         if r.ok:
             log.info(f"Accepted trade id {tradeid}")
             return r
-        else:
-            log.error(
-                f"Failed to accept trade id {tradeid}. Status code: {r.status_code}"
-            )
-            return r
+        log.error(
+            f"Failed to accept trade id {tradeid}. Status code: {r.status_code}"
+        )
+        return r
 
     def getDailyReward(self):
         """Does not claim daily reward, only GET's the endpoint and returns data as dict

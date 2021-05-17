@@ -78,9 +78,8 @@ def refreshToken(session: requests.Session, refresh_token: str, retries=10):
         log.info("ok refreshed swag token")
         return r.text
         # return token just in case lol
-    else:
-        log.error("no refresh token supplied or invalid refresh token supplied")
-        raise errors.RefreshError(userid=getUid(refresh_token))
+    log.error("no refresh token supplied or invalid refresh token supplied")
+    raise errors.RefreshError(userid=getUid(refresh_token))
 
 
 def isbanned(uid, rs: requests.Session = None):
