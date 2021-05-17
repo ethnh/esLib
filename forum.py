@@ -27,7 +27,8 @@ class Forum:
 
         """
         self.__id = fid
-        self.__api_url = kwargs.get("apiUrl", f"https://api.everskies.com/discussion/{self.__id}")
+        self.__api_url = kwargs.get(
+            "apiUrl", f"https://api.everskies.com/discussion/{self.__id}")
         self._forum_title = kwargs.get("forumTitle")
         self.__human_url = kwargs.get("humanUrl",
                                       f"https://everskies.com/community/forums/{self._forum_title}-{self.__id}")

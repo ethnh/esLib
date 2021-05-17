@@ -64,7 +64,8 @@ class Tokenmanager:
             if allow_refresh:
                 self.do_refresh_token()
             else:
-                log.error(f"access token {self.__token} of refresh token {self.refresh_token} expired")
+                log.error(
+                    f"access token {self.__token} of refresh token {self.refresh_token} expired")
                 raise errors.TokenExpiredError("Access")
         return self.__token
 
@@ -89,7 +90,8 @@ class Tokenmanager:
 
         else:
             # if refresh token can never expire, just refresh lol
-            self.__token = json.loads(refreshToken(session, self.refresh_token))["access_token"]
+            self.__token = json.loads(refreshToken(session, self.refresh_token))[
+                "access_token"]
             # refreshToken returns token as string
             self._token_expires = time.time() + self._token_expires_after
 

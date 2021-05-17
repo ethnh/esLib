@@ -38,11 +38,13 @@ class User:
                 refresh_token_proxy=kwargs.get("refresh_token_proxy"),
             )
         else:
-            log.info("you will need to use User.set_token(refresh_token=\"[...]\")!")
+            log.info(
+                "you will need to use User.set_token(refresh_token=\"[...]\")!")
 
         self.user = kwargs.get("user")
 
-        self.rs = kwargs.get("rs", utils.defaultSession(proxies=kwargs.get("proxies")))
+        self.rs = kwargs.get("rs", utils.defaultSession(
+            proxies=kwargs.get("proxies")))
 
     def readyAuth(self):
         self.rs.headers.update({
@@ -77,7 +79,8 @@ class User:
         self.tokenManager = token.tokenManager(
             refresh_token=refresh_token,
             refresh_token_expires=kwargs.get("refresh_token_expires"),
-            access_token_expires_after=kwargs.get("access_token_expires_after", 1800),
+            access_token_expires_after=kwargs.get(
+                "access_token_expires_after", 1800),
             refresh_token_proxy=kwargs.get("refresh_token_proxy"),
         )
         log.info("Set refresh token! It is recommended that you refresh the access token through "
@@ -101,10 +104,12 @@ class User:
 
     def claimReward(self):
         self.readyAuth()
-        reward = json.loads(self.rs.get("https://api.everskies.com/user/reward"))
+        reward = json.loads(self.rs.get(
+            "https://api.everskies.com/user/reward"))
         if reward:
             log.info("Claiming reward!")
-            self.rs.post("https://api.everskies.com/user/claim-reward", data='{"done":true}')
+            self.rs.post(
+                "https://api.everskies.com/user/claim-reward", data='{"done":true}')
         else:
             log.warning("Nothing to claim")
         return reward
@@ -136,7 +141,8 @@ class User:
 
     def claimGift(self, code):
         self.readyAuth()
-        r = self.rs.post("https://api.everskies.com/payments/gift/claim", data=json.dumps({"code": code}))
+        r = self.rs.post(
+            "https://api.everskies.com/payments/gift/claim", data=json.dumps({"code": code}))
         if r.ok:
             log.info("Claimed gift successfully!")
         else:
@@ -192,7 +198,8 @@ class User:
                 layout = self.rs.get(t_layout)
             layout = rebuild_data(layout)
             self.readyAuth()
-            self.rs.post("https://api.everskies.com/user/layout/update", data=json.dumps(layout))
+            self.rs.post(
+                "https://api.everskies.com/user/layout/update", data=json.dumps(layout))
 
         elif mode == "create":
             raise NotImplementedError
@@ -205,7 +212,8 @@ class User:
     def auctionBid(self, itemid, amount, **kwargs):
         # TODO: Add kwargs or remove the option to input them!
         self.readyAuth()
-        r = self.rs.post(f'https://api.everskies.com/outlet/bid/{itemid}', data=json.dumps({"price": amount}))
+        r = self.rs.post(
+            f'https://api.everskies.com/outlet/bid/{itemid}', data=json.dumps({"price": amount}))
         if r.ok:
             return r
         else:
@@ -237,32 +245,39 @@ class User:
             "request_primary": kwargs.get("requestPrimary"),
             "request_secondary": kwargs.get("requestSecondary"),
         }
-        r = self.rs.post("https://api.everskies.com/user/message/trade", data=json.dumps(trade))
+        r = self.rs.post(
+            "https://api.everskies.com/user/message/trade", data=json.dumps(trade))
         if r.ok:
-            log.info(f"Successfully sent trade request to {userid}, data: {kwargs}")
+            log.info(
+                f"Successfully sent trade request to {userid}, data: {kwargs}")
             return r
         else:
-            log.error(f"Failed to send trade request to {userid}, data: {kwargs}")
+            log.error(
+                f"Failed to send trade request to {userid}, data: {kwargs}")
             return r
 
     def cancelTrade(self, tradeid):
         self.readyAuth()
-        r = self.rs.post(f"https://api.everskies.com/user/message/trade/{tradeid}/cancel", data="")
+        r = self.rs.post(
+            f"https://api.everskies.com/user/message/trade/{tradeid}/cancel", data="")
         if r.ok:
             log.info(f"Cancelled trade id {tradeid}")
             return r
         else:
-            log.error(f"Failed to cancel trade id {tradeid}. Status code: {r.status_code}")
+            log.error(
+                f"Failed to cancel trade id {tradeid}. Status code: {r.status_code}")
             return r
 
     def acceptTrade(self, tradeid):
         self.readyAuth()
-        r = self.rs.post(f"https://api.everskies.com/user/message/trade/{tradeid}/accept", data="")
+        r = self.rs.post(
+            f"https://api.everskies.com/user/message/trade/{tradeid}/accept", data="")
         if r.ok:
             log.info(f"Accepted trade id {tradeid}")
             return r
         else:
-            log.error(f"Failed to accept trade id {tradeid}. Status code: {r.status_code}")
+            log.error(
+                f"Failed to accept trade id {tradeid}. Status code: {r.status_code}")
             return r
 
     def getDailyReward(self):
