@@ -27,6 +27,7 @@ class User:
     Support for websocket TBA (ETA: Never)
     Most functions for POSTing/GETing should be included
     """
+
     def __init__(self, refresh_token=None, **kwargs):
         if refresh_token:
             self.tokenManager = token.tokenManager(
