@@ -12,10 +12,15 @@ log = logging.getLogger(__name__)
 class Tokenmanager:
     """Pass it a refresh token and forget!
     Will request a new access token automatically as long as it is regularly
-    get'd, or you can do do_refresh_token on access_token failure """
+    get'd, or you can do do_refresh_token on access_token failure"""
 
-    def __init__(self, refresh_token: str, refresh_token_expires: int = 0, access_token_expires_after: int = 1800,
-                 **kwargs):
+    def __init__(
+        self,
+        refresh_token: str,
+        refresh_token_expires: int = 0,
+        access_token_expires_after: int = 1800,
+        **kwargs,
+    ):
         """Sets up token internals! Args: refresh_token : str, should be held in localstorage in a browser
         refresh_token_expires : time.time() (int) - when the refresh token should be considered invalid
         access_token_expires_after : int - how often to refresh access token Kwargs: "access_token" : If you want to
@@ -60,24 +65,27 @@ class Tokenmanager:
         Raises everskies.errors.TokenExpiredError with message "Access" in event of disallowed to refresh
         """
         if self._token_expires < time.time():
-            log.warning('token expired. refreshing')
+            log.warning("token expired. refreshing")
             if allow_refresh:
                 self.do_refresh_token()
             else:
                 log.error(
-                    f"access token {self.__token} of refresh token {self.refresh_token} expired")
+                    f"access token {self.__token} of refresh token {self.refresh_token} expired"
+                )
                 raise errors.TokenExpiredError("Access")
         return self.__token
 
     def do_refresh_token(self, session=None):
         """Refresh's token Args: session : requests.Session should session be failed to pass or falsy,
-        will use everskies.utils.defaultSession with self.refresh_token_proxy """
+        will use everskies.utils.defaultSession with self.refresh_token_proxy"""
         if session is None:
             session = requests.Session()
-            session.headers.update({
-                "content-type": "application/json",
-                "user-agent": randomagent(),
-            })
+            session.headers.update(
+                {
+                    "content-type": "application/json",
+                    "user-agent": randomagent(),
+                }
+            )
             if self.refresh_token_proxy:
                 session.proxies.update(self.refresh_token_proxy)
             # defaultSession constructs a requests.Session object
@@ -85,24 +93,24 @@ class Tokenmanager:
         if self._refresh_expires:
             # if the refresh token can expire, make sure it's still valid
             if self._refresh_expires < time.time():
-                log.error(f'refresh token {self.refresh_token} expired')
+                log.error(f"refresh token {self.refresh_token} expired")
                 raise errors.TokenExpiredError("Refresh")
 
         else:
             # if refresh token can never expire, just refresh lol
             self.__token = json.loads(refreshToken(session, self.refresh_token))[
-                "access_token"]
+                "access_token"
+            ]
             # refreshToken returns token as string
             self._token_expires = time.time() + self._token_expires_after
 
     def get_data(self):
-        """Returns all relevant data as a dict.
-        """
+        """Returns all relevant data as a dict."""
         return {
-            'access_token': self.__token,
-            'access_token_expires': self._token_expires,
-            'access_token_expires_after': self._token_expires_after,
-            'refresh_token': self.refresh_token,
-            'refresh_token_expires': self._refresh_expires,
-            'refresh_token_proxy': self.refresh_token_proxy,
+            "access_token": self.__token,
+            "access_token_expires": self._token_expires,
+            "access_token_expires_after": self._token_expires_after,
+            "refresh_token": self.refresh_token,
+            "refresh_token_expires": self._refresh_expires,
+            "refresh_token_proxy": self.refresh_token_proxy,
         }
