@@ -6,11 +6,11 @@
 #  >  Add functionality to request api data
 #  .
 #  ?   > This should be written here in case
-#      > I get around to writing ES-DB - 
+#      > I get around to writing ES-DB -
 #      > as ES-DB will make getting threads//
 #      > userdata // etc much easier
 #  .
-#  ?   > Default proxy should also be added   
+#  ?   > Default proxy should also be added
 #      > here, as unless we require auth to
 #      > collect, we should not identify
 #      > ourselves.
@@ -37,8 +37,10 @@ import json
 software_names = [SoftwareName.CHROME.value]
 software_types = [SoftwareType.WEB_BROWSER.value]
 hardware_types = [HardwareType.MOBILE.value, HardwareType.COMPUTER.value]
-operating_systems = [OperatingSystem.WINDOWS.value, OperatingSystem.LINUX.value, OperatingSystem.MAC.value]
-user_agent_rotator = UserAgent(software_names=software_names, operating_systems=operating_systems)
+operating_systems = [OperatingSystem.WINDOWS.value,
+                     OperatingSystem.LINUX.value, OperatingSystem.MAC.value]
+user_agent_rotator = UserAgent(
+    software_names=software_names, operating_systems=operating_systems)
 
 
 log = logging.getLogger(__name__)
@@ -95,7 +97,8 @@ def isbanned(uid, rs: requests.Session = None):
         })
     log.debug(f"Checking if UID {uid} is banned")
     params = (
-        ('search', '[{"attribute":"id","comparator":"eq","value":' + str(uid) + '}]'),
+        ('search',
+         '[{"attribute":"id","comparator":"eq","value":' + str(uid) + '}]'),
         ('single', '1'),
         ('withOptions', '1'),
     )
@@ -106,5 +109,6 @@ def isbanned(uid, rs: requests.Session = None):
         log.debug(f"Done checking. UID {uid} is banned")
         return True
     except KeyError:
-        log.debug(f"Failed to find ban_id in {uid} user data. Likely not banned.")
+        log.debug(
+            f"Failed to find ban_id in {uid} user data. Likely not banned.")
         return False
