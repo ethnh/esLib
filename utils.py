@@ -35,6 +35,9 @@ user_agent_rotator = UserAgent(software_names=software_names, operating_systems=
 import requests
 import jwt
 from everskies import errors
+import logging
+
+log = logging.getLogger(__name__)
 
 def randomagent():
     return(user_agent_rotator.get_random_user_agent())
@@ -69,7 +72,7 @@ def refreshToken(session: requests.Session, refresh_token: str, retries=10):
             retries-=1
             try:
                 # Get new access token
-                print("Refreshing access token")
+                log.info("Refreshing access token")
                 r = session.post("https://api.everskies.com/user/refresh-token",
                                  json={"token": refresh_token}, timeout=5)
                 if r.ok:
@@ -77,18 +80,19 @@ def refreshToken(session: requests.Session, refresh_token: str, retries=10):
             except ConnectionError as err:
                 time.sleep(1)
         if retries is 0:
-            print("Could not refresh token")
+            log.error("Could not refresh token")
             raise errors.RefreshError(userid=getUid(refresh_token))
             #self.disconnect()
         else:
-            print("ok refreshed swag token")
+            log.info("ok refreshed swag token")
             return r.text
             #return token just in case lol
     else:
-        print("no refresh token supplied or invalid refresh token supplied")
+        log.error("no refresh token supplied or invalid refresh token supplied")
         raise errors.RefreshError(userid=getUid(refresh_token))
 
 def isbanned(uid, rs=defaultSession()):
+    log.debug(f"Checking if UID {uid} is banned")
     params = (
         ('search', '[{"attribute":"id","comparator":"eq","value":' + str(uid) + '}]'),
         ('single', '1'),
@@ -97,6 +101,8 @@ def isbanned(uid, rs=defaultSession()):
     r = rs.get('https://api.everskies.com/users', params=params)
     try:
         json.loads(r)['ban_id']
+        log.debug(f"Done checking. UID {uid} is banned")
         return True
     except:
+        log.debug(f"Failed to find ban_id in {uid} user data. Likely not banned.")
         return False

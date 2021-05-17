@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 from everskies import utils
 import requests
+import logging
+
+log = logging.getLogger(__name__)
 
 class Forum:
     """Everskies Forum

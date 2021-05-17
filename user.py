@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
-from everskies import estoken
+from everskies import token
 from everskies import utils
 import requests
 import json
 from everskies import errors
+import logging
+
+log = logging.getLogger(__name__)
 
 """TODO:
     1. Update setLayout
@@ -30,7 +33,7 @@ class User():
                                                     refresh_token_proxy=kwargs.get("refresh_token_proxy", None),
 						    )
         else:
-            print("you will need to use User.set_token(refresh_token=\"[...]\")!")
+            log.info("you will need to use User.set_token(refresh_token=\"[...]\")!")
         
         self.user=kwargs.get("user", None)
         
@@ -59,8 +62,7 @@ class User():
         return str(f"User {username}")
 
     def getData(self, silent=True):
-        if not silent:
-            print("Ok! Getting data.")
+        log.info("Ok! Getting data.")
         return {
                 "user" : self.user,
                 "tokenManager" : self.tokenManager.get_data(),
@@ -68,12 +70,13 @@ class User():
 
     def setToken(self, refresh_token, **kwargs):
          self.tokenManager=estoken.tokenManager(
-                                                    refresh_token=refresh_token, 
-                                                    refresh_token_expires=kwargs.get("refresh_token_expires", None),
-                                                    access_token_expires_after=kwargs.get("access_token_expires_after", 1800),
-                                                    refresh_token_proxy=kwargs.get("refresh_token_proxy", None),
-                                                    )
-         print("Set refresh token! It is recommended that you refresh the access token through User.tokenManager.do_refresh_token() .")
+                                                refresh_token=refresh_token, 
+                                                refresh_token_expires=kwargs.get("refresh_token_expires", None),
+                                                access_token_expires_after=kwargs.get("access_token_expires_after", 1800),
+                                                refresh_token_proxy=kwargs.get("refresh_token_proxy", None),
+                                                )
+         log.info("Set refresh token! It is recommended that you refresh the access token through User.tokenManager.do_refresh_token() \
+, as the access token is what controls the currently used account")
 
     def createReply(self, threadid, text, **kwargs):
         self.readyAuth()
@@ -85,7 +88,7 @@ class User():
         url = f'https://api.everskies.com/discussion/{threadid}/reply'
         r=self.rs.post(url, data=json.dumps(data))
         if r.ok:
-            print("successfully created post")
+            log.info("successfully created post")
             return r
         else:
             raise errors.CreationError("Reply")
@@ -94,10 +97,10 @@ class User():
         self.readyAuth()
         reward=json.loads(self.rs.get("https://api.everskies.com/user/reward"))
         if reward:
-            print("Claiming reward!")
+            log.info("Claiming reward!")
             self.rs.post("https://api.everskies.com/user/claim-reward", data='{"done":true}')
         else:
-            print("Nothing to claim")
+            log.warning("Nothing to claim")
         return reward
 
     def createPost(self, title, text, categoryid=8, **kwargs):
@@ -120,7 +123,7 @@ class User():
         url = 'https://api.everskies.com/discussion/create'
         r=self.rs.post(url, data=json.dumps(data))
         if r.ok:
-            print("successfully created post")
+            log.info("successfully created post")
             return r
         else:
             raise errors.CreationError("Post")
@@ -129,9 +132,9 @@ class User():
         self.readyAuth()
         r=self.rs.post("https://api.everskies.com/payments/gift/claim", data=json.dumps({"code" : code}))
         if r.ok:
-            print("Claimed gift successfully!")
+            log.info("Claimed gift successfully!")
         else:
-            print("Failed to claim gift")
+            log.warning("Failed to claim gift")
         return r
     
     def setLayout(self, layout, mode="create", **kwargs):
@@ -191,7 +194,7 @@ class User():
         elif mode == "update":
             raise NotImplemented
         else:
-            print("Not a valid mode!")
+            log.warning("Not a valid mode!")
             raise NotImplemented
         
     def auctionBid(self, itemid, amount, **kwargs):
@@ -200,7 +203,7 @@ class User():
         if r.ok:
             return r
         else:
-            print(f"Failed to bid {amoun} on {itemid}")
+            log.error(f"Failed to bid {amount} on {itemid}")
             return r
 
     def createTrade(self, userid, **kwargs):
@@ -230,30 +233,30 @@ class User():
                 }
         r=self.rs.post("https://api.everskies.com/user/message/trade", data=json.dumps(trade))
         if r.ok:
-            print(f"Successfully sent trade reqest to {userid}, data: {kwargs}")
+            log.info(f"Successfully sent trade reqest to {userid}, data: {kwargs}")
             return r
         else:
-            print(f"Failed to send trade request to {userid}, data: {kwargs}")
+            log.error(f"Failed to send trade request to {userid}, data: {kwargs}")
             return r
 
     def cancelTrade(self, tradeid):
         self.readyAuth()
         r=self.rs.post(f"https://api.everskies.com/user/message/trade/{tradeid}/cancel", data="")
         if r.ok:
-            print(f"Cancelled trade id {tradeid}")
+            log.info(f"Cancelled trade id {tradeid}")
             return r
         else:
-            print(f"Failed to cancel trade id {tradeid}. Status code: {r.status_code}")
+            log.error(f"Failed to cancel trade id {tradeid}. Status code: {r.status_code}")
             return r
     
     def acceptTrade(self, tradeid):
         self.readyAuth()
         r=self.rs.post(f"https://api.everskies.com/user/message/trade/{tradeid}/accept", data="")
         if r.ok:
-            print(f"Accepted trade id {tradeid}")
+            log.info(f"Accepted trade id {tradeid}")
             return r
         else:
-            print(f"Failed to accept trade id {tradeid}. Status code: {r.status_code}")
+            log.error(f"Failed to accept trade id {tradeid}. Status code: {r.status_code}")
             return r
     
     def getDailyReward(self):

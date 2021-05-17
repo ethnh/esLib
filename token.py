@@ -3,6 +3,9 @@ import time
 from everskies.utils import refreshToken, defaultSession
 import json
 from everskies import errors
+import logging
+
+log = logging.getLogger(__name__)
 
 class tokenManager():
     """Pass it a refresh token and forget! 
@@ -58,10 +61,11 @@ class tokenManager():
         Raises everskies.errors.TokenExpiredError with message "Access" in event of disallowed to refresh
         """
         if self._token_expires < time.time():
-            print('token expired. refreshing')
+            log.warning('token expired. refreshing')
             if allow_refresh:
                 self.do_refresh_token()
             else:
+                log.error(f"access token {self.__token} of refresh token {self.refresh_token} expired")
                 raise errors.TokenExpiredError("Access")
         return self.__token
     
@@ -71,9 +75,8 @@ class tokenManager():
             session : requests.Session
                         should session be failed to pass or falsy, will use everskies.utils.defaultSession with self.refresh_token_proxy"""
         if self._refresh_expires and (self._refresh_expires < time.time()):
-            print(f'refresh token {self.refresh_token} expired')
+            log.error(f'refresh token {self.refresh_token} expired')
             raise errors.TokenExpiredError("Refresh")
-            pass
         else:
             if session:
                 self.__token=json.loads(refreshToken(session, self.refresh_token))["access_token"]
