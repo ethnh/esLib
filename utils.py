@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 #############################################
 #               TODO
 #  >  Implement Custom Errors
@@ -24,7 +23,6 @@
 #  !! (eg. esuser has createReply)
 #
 ##############################################
-
 import json
 import logging
 import time
@@ -32,8 +30,10 @@ import time
 import jwt
 import requests
 from everskies import errors
-from random_user_agent.params import (HardwareType, OperatingSystem,
-                                      SoftwareName, SoftwareType)
+from random_user_agent.params import HardwareType
+from random_user_agent.params import OperatingSystem
+from random_user_agent.params import SoftwareName
+from random_user_agent.params import SoftwareType
 from random_user_agent.user_agent import UserAgent
 
 software_names = [SoftwareName.CHROME.value]
