@@ -13,8 +13,8 @@ log = logging.getLogger(__name__)
 """TODO:
     1. Update setLayout
     2. Add functionality for more GET's!
-        - Yes, most of these functions are supposed to belong in utils, 
-            but if it's data only a User could get about themselves, 
+        - Yes, most of these functions are supposed to belong in utils,
+            but if it's data only a User could get about themselves,
             it belongs in User
     3. Websocket? Python cryptography ?!?!
     4. Better logging - Print() Won't work forever!
