@@ -27,28 +27,27 @@ class User:
     Support for websocket TBA (ETA: Never)
     Most functions for POSTing/GETing should be included
     """
-
     def __init__(self, refresh_token=None, **kwargs):
         if refresh_token:
             self.tokenManager = token.tokenManager(
                 refresh_token=refresh_token,
                 refresh_token_expires=kwargs.get("refresh_token_expires"),
                 access_token_expires_after=kwargs.get(
-                    "access_token_expires_after", 1800
-                ),
+                    "access_token_expires_after", 1800),
                 refresh_token_proxy=kwargs.get("refresh_token_proxy"),
             )
         else:
-            log.info('you will need to use User.set_token(refresh_token="[...]")!')
+            log.info(
+                'you will need to use User.set_token(refresh_token="[...]")!')
 
         self.user = kwargs.get("user")
 
-        self.rs = kwargs.get("rs", utils.defaultSession(proxies=kwargs.get("proxies")))
+        self.rs = kwargs.get(
+            "rs", utils.defaultSession(proxies=kwargs.get("proxies")))
 
     def readyAuth(self):
         self.rs.headers.update(
-            {"authorization": "Bearer " + self.tokenManager.get_token()}
-        )
+            {"authorization": "Bearer " + self.tokenManager.get_token()})
         # do this often - perhaps we could move session management to estoken? idk lol
 
     def refreshUserData(self):
@@ -78,14 +77,14 @@ class User:
         self.tokenManager = token.tokenManager(
             refresh_token=refresh_token,
             refresh_token_expires=kwargs.get("refresh_token_expires"),
-            access_token_expires_after=kwargs.get("access_token_expires_after", 1800),
+            access_token_expires_after=kwargs.get("access_token_expires_after",
+                                                  1800),
             refresh_token_proxy=kwargs.get("refresh_token_proxy"),
         )
         log.info(
             "Set refresh token! It is recommended that you refresh the access token through "
             "User.tokenManager.do_refresh_token() , as the access token is what controls the currently used "
-            "account"
-        )
+            "account")
 
     def createReply(self, threadid, text, **kwargs):
         self.readyAuth()
@@ -103,12 +102,12 @@ class User:
 
     def claimReward(self):
         self.readyAuth()
-        reward = json.loads(self.rs.get("https://api.everskies.com/user/reward"))
+        reward = json.loads(
+            self.rs.get("https://api.everskies.com/user/reward"))
         if reward:
             log.info("Claiming reward!")
-            self.rs.post(
-                "https://api.everskies.com/user/claim-reward", data='{"done":true}'
-            )
+            self.rs.post("https://api.everskies.com/user/claim-reward",
+                         data='{"done":true}')
         else:
             log.warning("Nothing to claim")
         return reward
@@ -202,9 +201,8 @@ class User:
                 layout = self.rs.get(t_layout)
             layout = rebuild_data(layout)
             self.readyAuth()
-            self.rs.post(
-                "https://api.everskies.com/user/layout/update", data=json.dumps(layout)
-            )
+            self.rs.post("https://api.everskies.com/user/layout/update",
+                         data=json.dumps(layout))
 
         elif mode == "create":
             raise NotImplementedError
@@ -245,17 +243,18 @@ class User:
             "offeredItemSetIds": kwargs.get("offeredItemSets", []),
             "offeredItemVariationIds": kwargs.get("offeredItemVariations", []),
             "requestedItemSetIds": kwargs.get("requestItemSets", []),
-            "requestedItemVariationIds": kwargs.get("requestItemVariations", []),
+            "requestedItemVariationIds": kwargs.get("requestItemVariations",
+                                                    []),
             "offer_primary": kwargs.get("offerPrimary"),
             "offer_secondary": kwargs.get("offerSecondary"),
             "request_primary": kwargs.get("requestPrimary"),
             "request_secondary": kwargs.get("requestSecondary"),
         }
-        r = self.rs.post(
-            "https://api.everskies.com/user/message/trade", data=json.dumps(trade)
-        )
+        r = self.rs.post("https://api.everskies.com/user/message/trade",
+                         data=json.dumps(trade))
         if r.ok:
-            log.info(f"Successfully sent trade request to {userid}, data: {kwargs}")
+            log.info(
+                f"Successfully sent trade request to {userid}, data: {kwargs}")
             return r
         log.error(f"Failed to send trade request to {userid}, data: {kwargs}")
         return r
@@ -263,35 +262,39 @@ class User:
     def cancelTrade(self, tradeid):
         self.readyAuth()
         r = self.rs.post(
-            f"https://api.everskies.com/user/message/trade/{tradeid}/cancel", data=""
-        )
+            f"https://api.everskies.com/user/message/trade/{tradeid}/cancel",
+            data="")
         if r.ok:
             log.info(f"Cancelled trade id {tradeid}")
             return r
-        log.error(f"Failed to cancel trade id {tradeid}. Status code: {r.status_code}")
+        log.error(
+            f"Failed to cancel trade id {tradeid}. Status code: {r.status_code}"
+        )
         return r
 
     def acceptTrade(self, tradeid):
         self.readyAuth()
         r = self.rs.post(
-            f"https://api.everskies.com/user/message/trade/{tradeid}/accept", data=""
-        )
+            f"https://api.everskies.com/user/message/trade/{tradeid}/accept",
+            data="")
         if r.ok:
             log.info(f"Accepted trade id {tradeid}")
             return r
-        log.error(f"Failed to accept trade id {tradeid}. Status code: {r.status_code}")
+        log.error(
+            f"Failed to accept trade id {tradeid}. Status code: {r.status_code}"
+        )
         return r
 
     def getDailyReward(self):
         """Does not claim daily reward, only GET's the endpoint and returns data as dict
         Returns a dict"""
         self.readyAuth()
-        return json.loads(self.rs.get("https://api.everskies.com/user/reward").text)
+        return json.loads(
+            self.rs.get("https://api.everskies.com/user/reward").text)
 
     def claimDailyReward(self):
         """POSTs to ES daily reward that it is done!
         Returns request object"""
         self.readyAuth()
-        return self.rs.post(
-            "https://api.everskies.com/user/claim-reward", json={"done": True}
-        )
+        return self.rs.post("https://api.everskies.com/user/claim-reward",
+                            json={"done": True})
