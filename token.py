@@ -5,7 +5,8 @@ import time
 
 import requests
 from everskies import errors
-from everskies.utils import randomagent, refreshToken
+from everskies.utils import randomagent
+from everskies.utils import refreshToken
 
 log = logging.getLogger(__name__)
 
