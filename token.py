@@ -15,7 +15,6 @@ class Tokenmanager:
     """Pass it a refresh token and forget!
     Will request a new access token automatically as long as it is regularly
     get'd, or you can do do_refresh_token on access_token failure"""
-
     def __init__(
         self,
         refresh_token: str,
@@ -82,12 +81,10 @@ class Tokenmanager:
         will use everskies.utils.defaultSession with self.refresh_token_proxy"""
         if session is None:
             session = requests.Session()
-            session.headers.update(
-                {
-                    "content-type": "application/json",
-                    "user-agent": randomagent(),
-                }
-            )
+            session.headers.update({
+                "content-type": "application/json",
+                "user-agent": randomagent(),
+            })
             if self.refresh_token_proxy:
                 session.proxies.update(self.refresh_token_proxy)
             # defaultSession constructs a requests.Session object
@@ -100,9 +97,8 @@ class Tokenmanager:
 
         else:
             # if refresh token can never expire, just refresh lol
-            self.__token = json.loads(refreshToken(session, self.refresh_token))[
-                "access_token"
-            ]
+            self.__token = json.loads(refreshToken(
+                session, self.refresh_token))["access_token"]
             # refreshToken returns token as string
             self._token_expires = time.time() + self._token_expires_after
 

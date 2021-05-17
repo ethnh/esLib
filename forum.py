@@ -11,7 +11,6 @@ class Forum:
     """Everskies Forum
     Class meant to handle actions one could take on a forum, or data one could try to get from one.
     """
-
     def __init__(self, fid: int, **kwargs):
         """Set URLs for data aquisition. Use getter or setter to change or get these values.
                 Args:
@@ -28,8 +27,7 @@ class Forum:
         """
         self.__id = fid
         self.__api_url = kwargs.get(
-            "apiUrl", f"https://api.everskies.com/discussion/{self.__id}"
-        )
+            "apiUrl", f"https://api.everskies.com/discussion/{self.__id}")
         self._forum_title = kwargs.get("forumTitle")
         self.__human_url = kwargs.get(
             "humanUrl",
