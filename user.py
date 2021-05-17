@@ -256,8 +256,7 @@ class User:
             log.info(
                 f"Successfully sent trade request to {userid}, data: {kwargs}")
             return r
-        log.error(
-            f"Failed to send trade request to {userid}, data: {kwargs}")
+        log.error(f"Failed to send trade request to {userid}, data: {kwargs}")
         return r
 
     def cancelTrade(self, tradeid):
