@@ -4,9 +4,7 @@ import json
 import logging
 
 import requests
-from everskies import errors
-from everskies import token
-from everskies import utils
+from everskies import errors, token, utils
 
 log = logging.getLogger(__name__)
 """TODO:

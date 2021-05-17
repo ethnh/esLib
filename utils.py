@@ -25,19 +25,16 @@
 #
 ##############################################
 
-from random_user_agent.user_agent import UserAgent
-from random_user_agent.params import (
-    SoftwareName,
-    OperatingSystem,
-    SoftwareType,
-    HardwareType,
-)
-import requests
-import jwt
-from everskies import errors
+import json
 import logging
 import time
-import json
+
+import jwt
+import requests
+from everskies import errors
+from random_user_agent.params import (HardwareType, OperatingSystem,
+                                      SoftwareName, SoftwareType)
+from random_user_agent.user_agent import UserAgent
 
 software_names = [SoftwareName.CHROME.value]
 software_types = [SoftwareType.WEB_BROWSER.value]
