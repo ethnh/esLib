@@ -26,7 +26,12 @@
 ##############################################
 
 from random_user_agent.user_agent import UserAgent
-from random_user_agent.params import SoftwareName, OperatingSystem, SoftwareType, HardwareType
+from random_user_agent.params import (
+    SoftwareName,
+    OperatingSystem,
+    SoftwareType,
+    HardwareType,
+)
 import requests
 import jwt
 from everskies import errors
@@ -37,10 +42,14 @@ import json
 software_names = [SoftwareName.CHROME.value]
 software_types = [SoftwareType.WEB_BROWSER.value]
 hardware_types = [HardwareType.MOBILE.value, HardwareType.COMPUTER.value]
-operating_systems = [OperatingSystem.WINDOWS.value,
-                     OperatingSystem.LINUX.value, OperatingSystem.MAC.value]
+operating_systems = [
+    OperatingSystem.WINDOWS.value,
+    OperatingSystem.LINUX.value,
+    OperatingSystem.MAC.value,
+]
 user_agent_rotator = UserAgent(
-    software_names=software_names, operating_systems=operating_systems)
+    software_names=software_names, operating_systems=operating_systems
+)
 
 
 log = logging.getLogger(__name__)
@@ -55,7 +64,7 @@ randomAgent = user_agent_rotator.get_random_user_agent
 
 def getUid(token: str):
     tdata = jwt.get_unverified_header(token)
-    uid = tdata['user_id']
+    uid = tdata["user_id"]
     return uid
 
 
@@ -66,8 +75,11 @@ def refreshToken(session: requests.Session, refresh_token: str, retries=10):
             try:
                 # Get new access token
                 log.info("Refreshing access token")
-                r = session.post("https://api.everskies.com/user/refresh-token",
-                                 json={"token": refresh_token}, timeout=5)
+                r = session.post(
+                    "https://api.everskies.com/user/refresh-token",
+                    json={"token": refresh_token},
+                    timeout=5,
+                )
                 if r.ok:
                     break
             except ConnectionError as err:
@@ -91,24 +103,24 @@ def isbanned(uid, rs: requests.Session = None):
         # construct and preform requests, but I am lazy, and the speed of the package
         # is not my highest priority.
         session = requests.Session()
-        session.headers.update({
-            "content-type": "application/json",
-            "user-agent": randomAgent(),
-        })
+        session.headers.update(
+            {
+                "content-type": "application/json",
+                "user-agent": randomAgent(),
+            }
+        )
     log.debug(f"Checking if UID {uid} is banned")
     params = (
-        ('search',
-         '[{"attribute":"id","comparator":"eq","value":' + str(uid) + '}]'),
-        ('single', '1'),
-        ('withOptions', '1'),
+        ("search", '[{"attribute":"id","comparator":"eq","value":' + str(uid) + "}]"),
+        ("single", "1"),
+        ("withOptions", "1"),
     )
-    r = rs.get('https://api.everskies.com/users', params=params)
+    r = rs.get("https://api.everskies.com/users", params=params)
     try:
-        ban_id = json.loads(r)['ban_id']
+        ban_id = json.loads(r)["ban_id"]
         log.info(f"ban ID for {uid} is {ban_id}")
         log.debug(f"Done checking. UID {uid} is banned")
         return True
     except KeyError:
-        log.debug(
-            f"Failed to find ban_id in {uid} user data. Likely not banned.")
+        log.debug(f"Failed to find ban_id in {uid} user data. Likely not banned.")
         return False
