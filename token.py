@@ -5,7 +5,7 @@ import time
 
 import requests
 from everskies import errors
-from everskies.utils import randomagent
+from everskies.utils import randomAgent
 from everskies.utils import refreshToken
 
 log = logging.getLogger(__name__)
@@ -83,7 +83,7 @@ class Tokenmanager:
             session = requests.Session()
             session.headers.update({
                 "content-type": "application/json",
-                "user-agent": randomagent(),
+                "user-agent": randomAgent(),
             })
             if self.refresh_token_proxy:
                 session.proxies.update(self.refresh_token_proxy)

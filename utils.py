@@ -44,7 +44,8 @@ user_agent_rotator = UserAgent(software_names=software_names, operating_systems=
 log = logging.getLogger(__name__)
 
 
-randomAgent = user_agent_rotator.get_random_user_agent
+def randomAgent():
+    return user_agent_rotator.get_random_user_agent()
 # May be useful to make a custom function for this or remove at some point
 # but until someone else starts using the lib,
 # I find that since ES will track user-agents (and ban/block any python-requests ones!),
