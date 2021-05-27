@@ -29,7 +29,7 @@ class User:
     """
     def __init__(self, refresh_token=None, **kwargs):
         if refresh_token:
-            self.tokenManager = token.tokenManager(
+            self.Tokenmanager = token.Tokenmanager(
                 refresh_token=refresh_token,
                 refresh_token_expires=kwargs.get("refresh_token_expires"),
                 access_token_expires_after=kwargs.get(
@@ -42,12 +42,16 @@ class User:
 
         self.user = kwargs.get("user")
 
-        self.rs = kwargs.get(
-            "rs", utils.defaultSession(proxies=kwargs.get("proxies")))
+        self.rs = kwargs.get("rs")
+        if self.rs is None:
+            self.rs = requests.Session()
+            self.rs.headers.update({
+                "user-agent" : utils.randomAgent(),
+                })
 
     def readyAuth(self):
         self.rs.headers.update(
-            {"authorization": "Bearer " + self.tokenManager.get_token()})
+            {"authorization": "Bearer " + self.Tokenmanager.get_token()})
         # do this often - perhaps we could move session management to estoken? idk lol
 
     def refreshUserData(self):
@@ -70,11 +74,11 @@ class User:
         log.info("Ok! Getting data.")
         return {
             "user": self.user,
-            "tokenManager": self.tokenManager.get_data(),
+            "Tokenmanager": self.Tokenmanager.get_data(),
         }
 
     def setToken(self, refresh_token, **kwargs):
-        self.tokenManager = token.tokenManager(
+        self.Tokenmanager = token.Tokenmanager(
             refresh_token=refresh_token,
             refresh_token_expires=kwargs.get("refresh_token_expires"),
             access_token_expires_after=kwargs.get("access_token_expires_after",
@@ -83,7 +87,7 @@ class User:
         )
         log.info(
             "Set refresh token! It is recommended that you refresh the access token through "
-            "User.tokenManager.do_refresh_token() , as the access token is what controls the currently used "
+            "User.Tokenmanager.do_refresh_token() , as the access token is what controls the currently used "
             "account")
 
     def createReply(self, threadid, text, **kwargs):

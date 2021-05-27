@@ -6,7 +6,7 @@ Everskies API Wrapper
 __title__ = 'everskies'
 __author__ = 'EthanHindmarsh'
 __license__ = 'MIT'
-__version__ = "0.0.11a"
+__version__ = "0.0.12a"
 
 __path__ = __import__('pkgutil').extend_path(__path__, __name__)
 
