@@ -16,11 +16,10 @@ log = logging.getLogger(__name__)
             but if it's data only a User could get about themselves,
             it belongs in User
     3. Websocket? Python cryptography ?!?!
-    4. Better logging - Print() Won't work forever!
     """
 
 
-class User:
+class User(object):
     """
     Various functions and actions an ES User could take
     Handles token automatically thanks to estoken,
@@ -34,26 +33,34 @@ class User:
                 refresh_token_expires=kwargs.get("refresh_token_expires"),
                 access_token_expires_after=kwargs.get(
                     "access_token_expires_after", 1800),
-                refresh_token_proxy=kwargs.get("refresh_token_proxy"),
-            )
+                refresh_token_proxy=kwargs.get("refresh_token_proxy", kwargs.get("proxies")),
+            )   # I'm not sure if we SHOULD pull from proxies kwarg as backup for rproxy,
+                # but I see no harm in it
         else:
             log.info(
                 'you will need to use User.set_token(refresh_token="[...]")!')
+            self.Tokenmanager = token.Tokenmanager()
 
         self.user = kwargs.get("user")
-
+        # self.user is a dict object with the same data 
+        # you would get from api.everskies.com/user
+        
         self.rs = kwargs.get("rs")
-        if self.rs is None:
-            self.rs = requests.Session()
-            self.rs.headers.update({
-                "user-agent" : utils.randomAgent(),
-                })
+        # self.(r)equest (s)ession
 
+        self.proxies = kwargs.get("proxies")
+
+        if self.rs is None:
+            self.rs = utils.defaultSession(proxies=self.proxies)
+            # defaultSession seems good enough honestly
+            # if defaultSession is removed, add check for 
+            #   if self.proxies: self.rs.proxies.update(self.proxies)
     def readyAuth(self):
+        """Ensures the User's requests session has a valid authorization"""
         self.rs.headers.update(
             {"authorization": "Bearer " + self.Tokenmanager.get_token()})
         # do this often - perhaps we could move session management to estoken? idk lol
-
+        # maybe a decorator-worthy function
     def refreshUserData(self):
         self.readyAuth()
         self.user = self.rs.get("https://api.everskies.com/user")
@@ -63,14 +70,16 @@ class User:
             self.user = None
             raise errors.GetterError("User Data")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         if isinstance(self.user, dict):
             username = str(self.user.get("alias", "Unknown"))
         else:
             username = "Unknown"
         return str(f"User {username}")
 
-    def getData(self):
+    def getData(self) -> dict:
+        """Meant for debugging and checking the internal status of any everskies User instance
+        Any useful debugging data can be added here"""
         log.info("Ok! Getting data.")
         return {
             "user": self.user,
@@ -136,7 +145,7 @@ class User:
         url = "https://api.everskies.com/discussion/create"
         r = self.rs.post(url, data=json.dumps(data))
         if r.ok:
-            log.info("successfully created post")
+            log.info(f"successfully created post {title}")
             return r
         raise errors.CreationError("Post")
 
@@ -147,7 +156,7 @@ class User:
             data=json.dumps({"code": code}),
         )
         if r.ok:
-            log.info("Claimed gift successfully!")
+            log.info(f"Claimed gift {code} successfully!")
         else:
             log.warning("Failed to claim gift")
         return r
@@ -167,10 +176,11 @@ class User:
                                 - If supplied, ignore layout and set internally
                                 - Str
         """
-
+        # work in progress!
         # doesn't support images completely yet- probably an easy fix
 
         def rebuild_data(data):
+            #very much work in progress
             """Attempts to take profile data from api/user/layout?search=((userid)) and edit it to be apply-able to
             one's own profile through morphing the data Used in "stealing" anothers profile
 
@@ -199,13 +209,17 @@ class User:
         # ugly elif chain :(( python match case better release soon
         if mode == "steal":
             t_layout = kwargs.get("steal_url")
-            # boolean
 
             if t_layout:
-                layout = self.rs.get(t_layout)
+                """TODO:
+                Perhaps allow grabbing from just user id alone,
+                Ensure consistent results - Fix images!
+                Maybe error if specified user to steal from has blank layout
+                """
+                layout = json.loads(self.rs.get(t_layout).text)
             layout = rebuild_data(layout)
             self.readyAuth()
-            self.rs.post("https://api.everskies.com/user/layout/update",
+            return self.rs.post("https://api.everskies.com/user/layout/update",
                          data=json.dumps(layout))
 
         elif mode == "create":

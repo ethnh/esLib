@@ -51,6 +51,24 @@ def randomAgent():
 # I find that since ES will track user-agents (and ban/block any python-requests ones!),
 # it is best to keep this for now.
 
+def defaultSession(**kwargs) -> requests.Session:
+    """Returns a requests.Session object with preset headers
+    to combat any bans based on the python/requests user-agent
+    and ensure proxies are in place everywhere! (if wanted)"""
+    session = requests.Session()                          
+    session.headers.update({                              
+                "content-type": "application/json; charset=utf-8", 
+                "user-agent": randomAgent(),                              
+    })
+    custom_headers=kwargs.get("headers")
+    if custom_headers:
+        session.headers.update(custom_headers)
+
+    proxies=kwargs.get("proxies")
+    if proxies:
+        session.proxies.update(proxies)
+
+    return session
 
 def getUid(token: str):
     tdata = jwt.get_unverified_header(token)

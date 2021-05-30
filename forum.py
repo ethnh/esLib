@@ -7,7 +7,7 @@ from everskies import utils
 log = logging.getLogger(__name__)
 
 
-class Forum:
+class Forum(object):
     """Everskies Forum
     Class meant to handle actions one could take on a forum, or data one could try to get from one.
     """

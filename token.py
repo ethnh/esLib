@@ -5,11 +5,12 @@ import time
 
 import requests
 from everskies import errors
-from everskies.utils import randomAgent
+from everskies.utils import defaultSession
 from everskies.utils import refreshToken
 
 log = logging.getLogger(__name__)
 
+# TODO: change function names to camelCase to match user.py
 
 class Tokenmanager:
     """Pass it a refresh token and forget!
@@ -17,9 +18,11 @@ class Tokenmanager:
     get'd, or you can do do_refresh_token on access_token failure"""
     def __init__(
         self,
-        refresh_token: str,
+        refresh_token: str = None,
         refresh_token_expires: int = 0,
         access_token_expires_after: int = 1800,
+        # Access tokens expire after like an hour, but half an hour seems reasonable enough
+        # May change in the future, who knows
         **kwargs,
     ):
         """Sets up token internals! Args: refresh_token : str, should be held in localstorage in a browser
@@ -30,6 +33,8 @@ class Tokenmanager:
         "http://proxy.proxy.com:12345", "https" : "https://proxy.proxy.com:12345"}
         See requests documentation for further information
         """
+        if refresh_token == None:
+            log.warning("Refresh token was not set. This could lead to issues!")
         self.refresh_token = refresh_token
 
         self._refresh_expires = refresh_token_expires
@@ -51,7 +56,7 @@ class Tokenmanager:
         # default is 0 so get_token refreshes token on first run
 
         self.refresh_token_proxy = kwargs.get("refresh_token_proxy")
-        if self.refresh_token_proxy is None:
+        if self.refresh_token_proxy == None:
             self.refresh_token_proxy = {}
 
     def set_refresh_token(self, refresh_token: str, expires: int = 0):
@@ -80,14 +85,8 @@ class Tokenmanager:
         """Refresh's token Args: session : requests.Session should session be failed to pass or falsy,
         will use everskies.utils.defaultSession with self.refresh_token_proxy"""
         if session is None:
-            session = requests.Session()
-            session.headers.update({
-                "content-type": "application/json",
-                "user-agent": randomAgent(),
-            })
-            if self.refresh_token_proxy:
-                session.proxies.update(self.refresh_token_proxy)
-            # defaultSession constructs a requests.Session object
+            session = utils.defaultSession(proxies=self.refresh_token_proxy)
+            # defaultSession constructs a requests.Session object with normal-looking headers (mainly just sets user-agent for us)
 
         if self._refresh_expires:
             # if the refresh token can expire, make sure it's still valid
