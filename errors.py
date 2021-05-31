@@ -22,3 +22,4 @@ class GetterError(Exception):
 class SetterError(Exception):
     def __init__(self, setting="Unknown"):
         super().__init__(f"Failed to set {setting}")
+

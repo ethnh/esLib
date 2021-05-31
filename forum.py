@@ -38,3 +38,6 @@ class Forum(object):
         return f"Forum {self.__id} ({self._forum_title})"
 
     # add stuff lol
+
+class Reply(object):
+    pass

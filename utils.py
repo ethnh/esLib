@@ -107,11 +107,8 @@ def isbanned(uid, rs: requests.Session = None):
         # Honestly, this could be made much faster by using a lower level library to
         # construct and preform requests, but I am lazy, and the speed of the package
         # is not my highest priority.
-        session = requests.Session()
-        session.headers.update({
-            "content-type": "application/json",
-            "user-agent": randomAgent(),
-        })
+        rs = defaultSession()
+
     log.debug(f"Checking if UID {uid} is banned")
     params = (
         ('search', '[{"attribute":"id","comparator":"eq","value":' + str(uid) + '}]'),
@@ -120,7 +117,7 @@ def isbanned(uid, rs: requests.Session = None):
     )
     r = rs.get('https://api.everskies.com/users', params=params)
     try:
-        ban_id = json.loads(r)['ban_id']
+        ban_id = json.loads(r.text)['ban_id']
         log.info(f"ban ID for {uid} is {ban_id}")
         log.debug(f"Done checking. UID {uid} is banned")
         return True

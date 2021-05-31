@@ -85,7 +85,7 @@ class Tokenmanager:
         """Refresh's token Args: session : requests.Session should session be failed to pass or falsy,
         will use everskies.utils.defaultSession with self.refresh_token_proxy"""
         if session is None:
-            session = utils.defaultSession(proxies=self.refresh_token_proxy)
+            session = defaultSession(proxies=self.refresh_token_proxy)
             # defaultSession constructs a requests.Session object with normal-looking headers (mainly just sets user-agent for us)
 
         if self._refresh_expires:

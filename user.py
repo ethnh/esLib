@@ -16,6 +16,7 @@ log = logging.getLogger(__name__)
             but if it's data only a User could get about themselves,
             it belongs in User
     3. Websocket? Python cryptography ?!?!
+    4. Custom errors for when r.ok is false?
     """
 
 
@@ -26,7 +27,7 @@ class User(object):
     Support for websocket TBA (ETA: Never)
     Most functions for POSTing/GETing should be included
     """
-    def __init__(self, refresh_token=None, **kwargs):
+    def __init__(self, refresh_token: str = None, **kwargs):
         if refresh_token:
             self.Tokenmanager = token.Tokenmanager(
                 refresh_token=refresh_token,
@@ -67,7 +68,6 @@ class User(object):
         if self.user.ok:
             self.user = json.loads(self.user.text)
         else:
-            self.user = None
             raise errors.GetterError("User Data")
 
     def __repr__(self) -> str:
@@ -86,7 +86,7 @@ class User(object):
             "Tokenmanager": self.Tokenmanager.get_data(),
         }
 
-    def setToken(self, refresh_token, **kwargs):
+    def setToken(self, refresh_token: str, **kwargs):
         self.Tokenmanager = token.Tokenmanager(
             refresh_token=refresh_token,
             refresh_token_expires=kwargs.get("refresh_token_expires"),
@@ -99,33 +99,22 @@ class User(object):
             "User.Tokenmanager.do_refresh_token() , as the access token is what controls the currently used "
             "account")
 
-    def createReply(self, threadid, text, **kwargs):
+    def createReply(self, forumid: int, text: str, **kwargs) -> requests.models.Response:
         self.readyAuth()
         data = {
             "content": text,
             "parent_reply_id": kwargs.get("parent_reply_id"),
             "attachments": kwargs.get("attachments", []),
         }
-        url = f"https://api.everskies.com/discussion/{threadid}/reply"
+        url = f"https://api.everskies.com/discussion/{forumid}/reply"
         r = self.rs.post(url, data=json.dumps(data))
         if r.ok:
             log.info("successfully created post")
             return r
-        raise errors.CreationError("Reply")
+        log.error(f"Failed to create reply on {forumid}")
+        return r
 
-    def claimReward(self):
-        self.readyAuth()
-        reward = json.loads(
-            self.rs.get("https://api.everskies.com/user/reward"))
-        if reward:
-            log.info("Claiming reward!")
-            self.rs.post("https://api.everskies.com/user/claim-reward",
-                         data='{"done":true}')
-        else:
-            log.warning("Nothing to claim")
-        return reward
-
-    def createPost(self, title, text, categoryid=8, **kwargs):
+    def createPost(self, title: str, text: str, categoryid=8, **kwargs) -> requests.models.Response:
         self.readyAuth()
         # {"title":"hi","tw":null,"tw_reason":null,"tags":"","category_id":8,"club_category_id":null,"content":"lol","event":null,"attachments":[]}
         data = {
@@ -147,9 +136,10 @@ class User(object):
         if r.ok:
             log.info(f"successfully created post {title}")
             return r
-        raise errors.CreationError("Post")
+        log.error("Failed to create post")
+        return r
 
-    def claimGift(self, code):
+    def claimGift(self, code) -> requests.models.Response:
         self.readyAuth()
         r = self.rs.post(
             "https://api.everskies.com/payments/gift/claim",
@@ -157,11 +147,11 @@ class User(object):
         )
         if r.ok:
             log.info(f"Claimed gift {code} successfully!")
-        else:
-            log.warning("Failed to claim gift")
+            return r
+        log.error("Failed to claim gift")
         return r
 
-    def setLayout(self, layout, mode="create", **kwargs):
+    def setLayout(self, layout: str, mode="create", **kwargs) -> requests.models.Response:
         """Expects layout to look similar to a layout directly from everskies api
 
         Mode=create - Make new layout
@@ -230,7 +220,7 @@ class User(object):
             log.warning("Not a valid mode!")
             raise NotImplementedError
 
-    def auctionBid(self, itemid, amount, **kwargs):
+    def auctionBid(self, itemid: int, amount: int, **kwargs) -> requests.models.Response:
         # TODO: Add kwargs or remove the option to input them!
         self.readyAuth()
         r = self.rs.post(
@@ -242,7 +232,7 @@ class User(object):
         log.error(f"Failed to bid {amount} on {itemid}")
         return r
 
-    def createTrade(self, userid, **kwargs):
+    def createTrade(self, userid: int, **kwargs) -> requests.models.Response:
         """
         kwargs:
             - offeredItemSets - list of ints
@@ -275,10 +265,10 @@ class User(object):
                 f"Successfully sent trade request to {userid}, data: {kwargs}")
             return r
         log.error(
-            f"Failed to send trade request to {userid}, data: {kwargs}")
+                f"Failed to send trade request to {userid}, status code: {r.status_code}")
         return r
 
-    def cancelTrade(self, tradeid):
+    def cancelTrade(self, tradeid: int) -> requests.models.Response:
         self.readyAuth()
         r = self.rs.post(
             f"https://api.everskies.com/user/message/trade/{tradeid}/cancel",
@@ -291,7 +281,7 @@ class User(object):
         )
         return r
 
-    def acceptTrade(self, tradeid):
+    def acceptTrade(self, tradeid: int) -> requests.models.Response:
         self.readyAuth()
         r = self.rs.post(
             f"https://api.everskies.com/user/message/trade/{tradeid}/accept",
@@ -304,16 +294,41 @@ class User(object):
         )
         return r
 
-    def getDailyReward(self):
+    def getDailyReward(self) -> requests.models.Response:
         """Does not claim daily reward, only GET's the endpoint and returns data as dict
         Returns a dict"""
         self.readyAuth()
-        return json.loads(
-            self.rs.get("https://api.everskies.com/user/reward").text)
+        r=self.rs.get("https://api.everskies.com/user/reward")
+        if r.ok:
+            log.debug("Retrieved daily reward")
+            return r
+        log.error(f"failed to get daily reward. Status code: {r.status_code}")
+        return r
 
-    def claimDailyReward(self):
+    def claimDailyReward(self) -> requests.models.Response:
         """POSTs to ES daily reward that it is done!
         Returns request object"""
         self.readyAuth()
-        return self.rs.post("https://api.everskies.com/user/claim-reward",
+        r=self.rs.post("https://api.everskies.com/user/claim-reward",
                             json={"done": True})
+        if r.ok:
+            log.debug("Claimed daily reward")
+            return r
+        log.error("failed to claim daily reward")
+        return r
+
+    def friendReq(self, userid: int, message: str = "", **kwargs) -> requests.models.Response:
+        data={
+                'message': message
+                }
+        url=f'https://api.everskies.com/user/friends/{id}/add'
+        
+        self.readyAuth()
+        r=self.rs.post(url, data=json.dumps(data))
+        
+        if r.ok:
+            log.info(f'friended {id}')
+            return r
+
+        log.error(f"unable to friend {id}")
+        return r
